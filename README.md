@@ -58,6 +58,12 @@ Detects:
 
 ## 📸 Demo
 
+<p align="center">
+  <img src="assets/demo.gif" width="800"/>
+  <br>
+  <em>FoxScan v2.0 in action</em>
+</p>
+
 ```bash
 python foxscan.py example.com -p 1-1000 -o report.json
 ````
@@ -201,11 +207,12 @@ FoxScan follows real-world reconnaissance principles:
 
 ```
 FoxScan/
-│
-├── foxscan.py
-├── requirements.txt
+├── LICENSE
 ├── README.md
-└── LICENSE
+├── assets
+│   └── demo.gif
+├── foxscan.py
+└── requirements.txt
 ```
 
 ---
