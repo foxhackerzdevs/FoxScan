@@ -1,71 +1,92 @@
-# 🦊 FoxScan v2.0
-**Automated Reconnaissance & Asset Discovery Tool**
+# 🦊 FoxScan v2.0  
+### Automated Reconnaissance & Asset Discovery Tool  
 
-Developed by **Fox Hackerz** ([@foxhackerzdevs](https://github.com/foxhackerzdevs))
+<p align="center">
+  <img src="https://img.shields.io/badge/version-2.0-blue.svg">
+  <img src="https://img.shields.io/badge/python-3.x-green.svg">
+  <img src="https://img.shields.io/badge/license-MIT-yellow.svg">
+  <img src="https://img.shields.io/badge/status-active-success.svg">
+</p>
+
+<p align="center">
+  <b>Fast • Lightweight • Practical Recon Tool for Security Enthusiasts</b>
+</p>
 
 ---
 
 ## 🧠 Overview
-FoxScan is a lightweight yet powerful reconnaissance tool designed for the **initial phase of penetration testing and security analysis**.
+
+**FoxScan** is a modern reconnaissance tool built for the **initial phase of penetration testing**.
 
 It automates:
-- 🔍 Port scanning using Nmap
-- 🌐 Service & version detection
-- 📡 HTTP header extraction
-- ⚠️ Basic security misconfiguration detection
+- 🔍 Port scanning using Nmap  
+- 🌐 Service & version detection  
+- 📡 HTTP header extraction  
+- ⚠️ Basic security misconfiguration detection  
 
-Built for **speed, simplicity, and extensibility**, FoxScan bridges the gap between quick scans and structured analysis.
+Designed with **simplicity + power**, FoxScan delivers meaningful insights without unnecessary complexity.
 
 ---
 
-## 🚀 Key Features
+## ✨ Features
 
 ### ⚡ Smart Port Scanning
-- Uses Nmap’s fast scanning engine
-- Supports custom port ranges
-- Detects services and versions (`-sV`)
+- Powered by Nmap
+- Custom port ranges supported
+- Service & version detection (`-sV`)
 
-### 🌐 HTTP Header Analysis
-- Identifies server technologies
-- Extracts response headers
-- Detects exposed information
+### 🌐 Header Intelligence
+- Extracts HTTP response headers
+- Identifies backend technologies
+- Reveals server configurations
 
 ### ⚠️ Security Insights
-Detects common misconfigurations:
+Detects:
 - Missing `X-Frame-Options`
 - Missing `X-Content-Type-Options`
-- Server version disclosure
+- Server version exposure
 
-### 📊 Structured Reporting
-- Export results to **JSON**
-- Clean and machine-readable output
+### 📊 JSON Reporting
+- Export scan results
+- Machine-readable format
+- Useful for automation & pipelines
 
 ### 🧵 Concurrent Execution
-- Faster header retrieval using threading
+- Faster header checks using threading
+
+---
+
+## 📸 Demo
+
+```bash
+python foxscan.py example.com -p 1-1000 -o report.json
+````
 
 ---
 
 ## 📦 Installation
 
 ### 1️⃣ Install Nmap
-Make sure Nmap is installed:
 
-- Linux:
+#### Ubuntu / Debian
+
 ```bash
 sudo apt install nmap
-````
+```
 
-* Fedora:
+#### Fedora
 
 ```bash
 sudo dnf install nmap
 ```
 
-* Windows: Download from [https://nmap.org](https://nmap.org)
+#### Windows
+
+Download from: [https://nmap.org](https://nmap.org)
 
 ---
 
-### 2️⃣ Clone Repository
+### 2️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/foxhackerzdevs/FoxScan.git
@@ -74,7 +95,7 @@ cd FoxScan
 
 ---
 
-### 3️⃣ Install Python Dependencies
+### 3️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -90,25 +111,19 @@ pip install -r requirements.txt
 python foxscan.py example.com
 ```
 
----
-
-### 🔹 Custom Port Range
+### 🔹 Custom Ports
 
 ```bash
 python foxscan.py example.com -p 1-65535
 ```
 
----
-
-### 🔹 Skip Header Analysis
+### 🔹 Skip Headers
 
 ```bash
 python foxscan.py example.com --no-headers
 ```
 
----
-
-### 🔹 Save Output to JSON
+### 🔹 Save Report
 
 ```bash
 python foxscan.py example.com -o report.json
@@ -135,35 +150,27 @@ Content-Type: text/html
 
 ---
 
-## 📁 Output Format (JSON)
+## 📁 JSON Output
 
 ```json
 {
-    "target": "example.com",
-    "version": "2.0",
-    "port_scan": {
-        "example.com": {
-            "state": "up",
-            "protocols": {
-                "tcp": {
-                    "80": {
-                        "state": "open",
-                        "name": "http",
-                        "product": "Apache",
-                        "version": "2.4.49"
-                    }
-                }
-            }
+  "target": "example.com",
+  "version": "2.0",
+  "port_scan": {
+    "example.com": {
+      "state": "up",
+      "protocols": {
+        "tcp": {
+          "80": {
+            "state": "open",
+            "name": "http",
+            "product": "Apache",
+            "version": "2.4.49"
+          }
         }
-    },
-    "headers": {
-        "headers": {
-            "Server": "Apache/2.4.49"
-        },
-        "issues": [
-            "Server disclosed: Apache/2.4.49"
-        ]
+      }
     }
+  }
 }
 ```
 
@@ -171,52 +178,57 @@ Content-Type: text/html
 
 ## 🧪 Research Notes
 
-FoxScan is designed based on real-world reconnaissance methodologies:
+FoxScan follows real-world reconnaissance principles:
 
 * **Port Scanning**
 
-  * Uses Nmap’s optimized scanning algorithms
-  * Focuses on identifying exposed services quickly
+  * Identifies exposed services quickly
+  * Uses optimized scanning techniques
 
-* **Service Fingerprinting**
+* **Fingerprinting**
 
-  * Helps identify technologies and versions
-  * Useful for vulnerability correlation (CVE mapping)
+  * Detects server technologies
+  * Assists in vulnerability mapping
 
 * **Header Analysis**
 
-  * Detects insecure configurations
-  * Reveals server-side technologies
-
-* **Security Insight Layer**
-
-  * Highlights weak or missing headers
-  * Assists in early-stage vulnerability assessment
+  * Highlights insecure configurations
+  * Reveals attack surface indicators
 
 ---
 
-## 🏗 Architecture
+## 🏗 Project Structure
 
 ```
-foxscan.py
+FoxScan/
 │
-├── scan_target()       → Nmap integration
-├── check_headers()     → HTTP requests
-├── analyze_headers()   → Security checks
-├── save_report()       → JSON output
-└── CLI (argparse)      → User interface
+├── foxscan.py
+├── requirements.txt
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## 🔥 Future Scope
+## 🔮 Future Scope
 
-* 🔍 CVE database integration (NVD API)
+* 🔍 CVE lookup integration (NVD API)
 * 🌐 Subdomain enumeration
-* 🕷 Web crawling & endpoint discovery
-* 📡 OS fingerprinting
-* 🎯 Automated vulnerability scoring
-* 🖥 Web dashboard interface
+* 🕷 Web crawling
+* 📡 OS detection
+* 📊 Web dashboard (UI)
+* ⚡ Parallel port scanning engine
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repo
+2. Create a new branch
+3. Make changes
+4. Submit a pull request
 
 ---
 
@@ -224,13 +236,13 @@ foxscan.py
 
 This tool is intended for:
 
-> ✅ Educational purposes
-> ✅ Ethical hacking
-> ✅ Authorized penetration testing
+✅ Educational purposes
+✅ Ethical hacking
+✅ Authorized penetration testing
 
-❌ Unauthorized scanning of systems is illegal.
+❌ Unauthorized usage is illegal.
 
-The developers are **not responsible for misuse** of this tool.
+The authors are **not responsible for misuse**.
 
 ---
 
@@ -246,6 +258,12 @@ We build tools focused on:
 
 * Cybersecurity
 * Automation
-* Developer productivity
+* Developer tools
 
-**Join the pack.**
+📌 GitHub: [https://github.com/foxhackerzdevs](https://github.com/foxhackerzdevs)
+
+---
+
+<p align="center">
+  <b>🦊 Join the pack. Build. Break. Secure.</b>
+</p>
