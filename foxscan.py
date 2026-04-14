@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import shlex
 import nmap
 import requests
 import argparse
@@ -19,7 +20,7 @@ def generate_banner():
  | |_ | | | \  /\___ \| |     / _ \ |  \| |
  |  _|| |_| /  \ ___) | |___ / ___ \| |\  |
  |_|   \___/_/\_\____/ \____/_/   \_\_| \_|
-                                           
+                                          
         FoxScan v2.0 - Recon Tool
     '''
 
@@ -43,12 +44,13 @@ def scan_target(target, ports):
     
     try:
         nm = nmap.PortScanner()
-    except:
-        print("[-] Nmap not found. Please install it.")
-        sys.exit(1)
+    except Exception as e:
+        print(f"[-] Nmap error: {e}")
+        return {}
 
     try:
-        nm.scan(target, arguments=f"-p {ports} -sV --open")
+        safe_ports = shlex.quote(ports)
+        nm.scan(target, arguments=f"-p {safe_ports} -sV --open")
     except Exception as e:
         print(f"[-] Scan failed: {e}")
         return {}
