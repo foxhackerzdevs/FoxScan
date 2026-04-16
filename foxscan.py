@@ -8,7 +8,7 @@ import json
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-VERSION = "2.0"
+VERSION = "2.1"
 
 # =========================
 # BANNER
@@ -20,20 +20,26 @@ def generate_banner():
  | |_ | | | \  /\___ \| |     / _ \ |  \| |
  |  _|| |_| /  \ ___) | |___ / ___ \| |\  |
  |_|   \___/_/\_\____/ \____/_/   \_\_| \_|
-                                          
-        FoxScan v2.0 - Recon Tool
+
+        FoxScan v2.1 - Recon Tool
     '''
 
 # =========================
 # ARGUMENT PARSER
 # =========================
 def parse_args():
-    parser = argparse.ArgumentParser(description="FoxScan v2.0 - Recon Tool")
+    parser = argparse.ArgumentParser(description="FoxScan v2.1 - Recon Tool")
+
     parser.add_argument("target", help="Target IP or domain")
-    parser.add_argument("-p", "--ports", default="1-1000", help="Port range (default: 1-1000)")
-    parser.add_argument("-t", "--timeout", type=int, default=5, help="Request timeout")
-    parser.add_argument("--no-headers", action="store_true", help="Skip header scan")
-    parser.add_argument("-o", "--output", help="Save output to JSON file")
+    parser.add_argument("-p", "--ports", default="1-1000",
+                        help="Port range (default: 1-1000)")
+    parser.add_argument("-t", "--timeout", type=int, default=5,
+                        help="Request timeout (default: 5)")
+    parser.add_argument("--no-headers", action="store_true",
+                        help="Skip header scan")
+    parser.add_argument("-o", "--output",
+                        help="Save output to JSON file")
+
     return parser.parse_args()
 
 # =========================
@@ -41,16 +47,16 @@ def parse_args():
 # =========================
 def scan_target(target, ports):
     print(f"[+] Starting Port Scan on: {target}")
-    
+
     try:
         nm = nmap.PortScanner()
     except Exception as e:
-        print(f"[-] Nmap error: {e}")
+        print(f"[-] Nmap not found or error: {e}")
         return {}
 
     try:
         safe_ports = shlex.quote(ports)
-        nm.scan(target, arguments=f"-p {safe_ports} -sV --open")
+        nm.scan(hosts=target, arguments=f"-p {safe_ports} -sV --open")
     except Exception as e:
         print(f"[-] Scan failed: {e}")
         return {}
@@ -58,6 +64,8 @@ def scan_target(target, ports):
     results = {}
 
     for host in nm.all_hosts():
+        print(f"\n[+] Host: {host} ({nm[host].state()})")
+
         results[host] = {
             "state": nm[host].state(),
             "protocols": {}
@@ -68,14 +76,18 @@ def scan_target(target, ports):
 
             for port in sorted(nm[host][proto].keys()):
                 service = nm[host][proto][port]
-                results[host]["protocols"][proto][port] = {
+
+                port_info = {
                     "state": service["state"],
                     "name": service.get("name", ""),
                     "product": service.get("product", ""),
                     "version": service.get("version", "")
                 }
 
-                print(f"{host}:{port} -> {service['state']} ({service.get('product', '')})")
+                results[host]["protocols"][proto][port] = port_info
+
+                print(f"  └─ {proto.upper()} {port}: {service['state']} "
+                      f"{service.get('product', '')} {service.get('version', '')}")
 
     return results
 
@@ -90,6 +102,9 @@ def analyze_headers(headers):
 
     if "X-Content-Type-Options" not in headers:
         issues.append("Missing X-Content-Type-Options")
+
+    if "Strict-Transport-Security" not in headers:
+        issues.append("Missing HSTS (HTTPS not enforced)")
 
     if "Server" in headers:
         issues.append(f"Server disclosed: {headers['Server']}")
@@ -109,22 +124,25 @@ def check_headers(url, timeout):
         response = requests.get(url, timeout=timeout)
         headers = dict(response.headers)
 
+        print("\n[+] Response Headers:")
         for k, v in headers.items():
-            print(f"{k}: {v}")
+            print(f"  {k}: {v}")
 
         issues = analyze_headers(headers)
 
         if issues:
             print("\n[!] Potential Issues:")
             for issue in issues:
-                print(f" - {issue}")
+                print(f"  - {issue}")
+        else:
+            print("\n[+] No obvious header issues found")
 
         return {
             "headers": headers,
             "issues": issues
         }
 
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"[-] Header check failed: {e}")
         return {}
 
@@ -146,6 +164,7 @@ def main():
     print(generate_banner())
 
     args = parse_args()
+
     final_data = {
         "target": args.target,
         "version": VERSION
@@ -159,8 +178,7 @@ def main():
     if not args.no_headers:
         with ThreadPoolExecutor(max_workers=2) as executor:
             future = executor.submit(check_headers, args.target, args.timeout)
-            header_data = future.result()
-            final_data["headers"] = header_data
+            final_data["headers"] = future.result()
 
     # Save Output
     if args.output:
@@ -170,4 +188,8 @@ def main():
 # ENTRY
 # =========================
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[!] Interrupted by user")
+        sys.exit(1)
