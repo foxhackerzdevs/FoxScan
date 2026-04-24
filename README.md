@@ -1,4 +1,4 @@
-# 🦊 FoxScan v2.1
+## 🦊 FoxScan v2.1
 
 ### Automated Reconnaissance & Asset Discovery Tool
 
@@ -17,16 +17,17 @@
 
 ## 🧠 Overview
 
-**FoxScan** is a modern reconnaissance tool built for the **initial phase of penetration testing and asset discovery**.
+**FoxScan** is a lightweight reconnaissance tool designed for the **initial phase of penetration testing and asset discovery**.
 
-It automates:
+It focuses on delivering **clear, structured insights** rather than raw scan output.
 
-* 🔍 Port scanning using Nmap
-* 🌐 Service & version detection
-* 📡 HTTP header analysis
-* ⚠️ Security misconfiguration detection
+### 🔍 What it does
 
-Designed with a **performance-first mindset**, FoxScan provides meaningful insights without unnecessary complexity.
+* Port scanning via **Nmap**
+* Service & version detection
+* HTTP header analysis
+* Basic misconfiguration detection
+* JSON report generation for automation
 
 ---
 
@@ -34,36 +35,37 @@ Designed with a **performance-first mindset**, FoxScan provides meaningful insig
 
 ### ⚡ Smart Port Scanning
 
-* Powered by Nmap
-* Custom port ranges supported
-* Service & version detection (`-sV`)
-* Filters only active/open ports
+* Powered by Nmap (`-sV`)
+* Custom port ranges
+* Shows only open/active ports
+* Clean structured output (not cluttered CLI dump)
 
 ### 🌐 Header Intelligence
 
-* Extracts HTTP response headers
-* Identifies backend technologies
-* Detects exposed server details
+* Extracts HTTP headers
+* Identifies backend/server exposure
+* Detects missing security headers
 
 ### ⚠️ Security Insights
 
-Detects:
+Detects common issues like:
 
 * Missing `X-Frame-Options`
 * Missing `X-Content-Type-Options`
 * Missing `Strict-Transport-Security`
+* Missing `Content-Security-Policy`
 * Server version disclosure
 
 ### 📊 JSON Reporting
 
-* Export scan results
-* Machine-readable format
-* Ideal for automation pipelines
+* Machine-readable output
+* Pipeline-friendly
+* Easy integration with other tools
 
 ### 🧵 Concurrent Execution
 
 * Multi-threaded header scanning
-* Faster execution with minimal overhead
+* Faster recon without heavy resource usage
 
 ---
 
@@ -85,21 +87,20 @@ python foxscan.py example.com -p 1-1000 -o report.json
 
 ### 1️⃣ Install Nmap
 
-#### Ubuntu / Debian
+**Ubuntu / Debian**
 
 ```bash
 sudo apt install nmap
 ```
 
-#### Fedora
+**Fedora**
 
 ```bash
 sudo dnf install nmap
 ```
 
-#### Windows
-
-Download from: https://nmap.org
+**Windows**
+Download: [https://nmap.org/download.html](https://nmap.org/download.html)
 
 ---
 
@@ -140,7 +141,13 @@ python foxscan.py example.com -p 1-65535
 python foxscan.py example.com --no-headers
 ```
 
-### 🔹 Export JSON Report
+### 🔹 JSON Output (Automation Mode)
+
+```bash
+python foxscan.py example.com --json
+```
+
+### 🔹 Save Report
 
 ```bash
 python foxscan.py example.com -o report.json
@@ -162,7 +169,7 @@ Content-Type: text/html
 
 [!] Potential Issues:
  - Server disclosed: Apache/2.4.49
- - Missing X-Frame-Options (Clickjacking risk)
+ - Missing X-Frame-Options
 ```
 
 ---
@@ -193,24 +200,14 @@ Content-Type: text/html
 
 ---
 
-## 🧪 Research & Methodology
+## 🧪 Methodology
 
-FoxScan follows real-world reconnaissance workflows:
+FoxScan follows a **real-world recon workflow**:
 
-* **Port Scanning**
-
-  * Identifies exposed services quickly
-  * Uses efficient scanning strategies
-
-* **Service Fingerprinting**
-
-  * Detects technologies & versions
-  * Assists vulnerability assessment
-
-* **Header Analysis**
-
-  * Highlights insecure configurations
-  * Reveals potential attack vectors
+1. **Discovery** → Identify open ports
+2. **Enumeration** → Detect services & versions
+3. **Analysis** → Extract headers & configs
+4. **Insight** → Highlight potential weaknesses
 
 ---
 
@@ -218,49 +215,46 @@ FoxScan follows real-world reconnaissance workflows:
 
 ```
 FoxScan/
-├── LICENSE
-├── README.md
 ├── foxscan.py
 ├── requirements.txt
+├── README.md
+├── LICENSE
 └── assets/
     └── demo.gif
 ```
 
 ---
 
-## 🔮 Future Scope
+## 🔮 Roadmap
 
 * 🔍 CVE lookup (NVD API integration)
 * 🌐 Subdomain enumeration
-* 🕷 Web crawling engine
-* 📡 OS detection
-* 📊 Web dashboard (UI)
-* ⚡ Async scanning engine (high-performance mode)
+* 🕷 Web crawler module
+* 📡 OS detection (Nmap integration)
+* 📊 Web UI dashboard
+* ⚡ Async scanning engine
+* 🔌 Plugin system (major upgrade)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome!
-
-1. Fork the repository
+1. Fork the repo
 2. Create a feature branch
-3. Commit your changes
+3. Commit changes
 4. Open a Pull Request
 
 ---
 
 ## ⚠️ Disclaimer
 
-This tool is intended strictly for:
+This tool is intended for:
 
-✅ Educational purposes
-✅ Ethical hacking
-✅ Authorized penetration testing
+* ✅ Educational use
+* ✅ Authorized security testing
 
-❌ Unauthorized use is illegal.
-
-The authors are **not responsible for misuse**.
+Unauthorized use is illegal.
+The authors are not responsible for misuse.
 
 ---
 
@@ -270,18 +264,18 @@ MIT License © 2026 Fox Hackerz
 
 ---
 
-## 🦊 About Fox Hackerz
+## 🦊 About
 
-We build tools focused on:
+**Fox Hackerz** builds tools focused on:
 
 * Cybersecurity
 * Automation
-* Developer systems
+* Developer tooling
 
-📌 GitHub: https://github.com/foxhackerzdevs
+🔗 [https://github.com/foxhackerzdevs](https://github.com/foxhackerzdevs)
 
 ---
 
 <p align="center">
-  <b>🦊 Join the pack. Build. Break. Secure.</b>
+  <b>🦊 Build simple tools that actually get used.</b>
 </p>
