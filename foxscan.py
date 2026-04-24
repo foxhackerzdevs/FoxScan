@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import shlex
 import nmap
 import requests
 import argparse
 import json
 import sys
-from concurrent.futures import ThreadPoolExecutor
 
 VERSION = "2.2"
 
@@ -43,6 +41,8 @@ def parse_args():
                         help="Save JSON report")
     parser.add_argument("--json", action="store_true",
                         help="Pure JSON output")
+    parser.add_argument("--mcp", action="store_true",
+                        help="Enable MCP mode")
 
     return parser.parse_args()
 
@@ -55,12 +55,11 @@ def scan_target(target, ports, service=False, silent=False):
 
     try:
         nm = nmap.PortScanner()
-    except Exception as e:
-        if not silent:
-            print(f"[-] Nmap error: {e}")
-        return {}
+    except nmap.PortScannerError:
+        print("[-] Nmap not found. Please install it.")
+        sys.exit(1)
 
-    scan_args = f"-p {ports} -T4"
+    scan_args = f"-p {ports} -T4 --host-timeout 30s"
     if service:
         scan_args += " -sV"
 
@@ -101,9 +100,9 @@ def scan_target(target, ports, service=False, silent=False):
                 results[host]["protocols"][proto][port] = port_info
 
                 if not silent:
-                    print(f"  └─ {proto.upper()} {port}: "
-                          f"{service_data.get('product','')} "
-                          f"{service_data.get('version','')}")
+                    print(f"  └─ {proto.upper()} {port} "
+                          f"[{port_info['name']}] "
+                          f"{port_info['product']} {port_info['version']}")
 
     return results
 
@@ -150,14 +149,15 @@ def check_headers(url, timeout, silent=False):
         print(f"\n[~] HTTP Recon: {url}")
 
     try:
-        response = requests.get(url, timeout=timeout)
-        headers = dict(response.headers)
+        headers = {"User-Agent": "FoxScan/2.2"}
+        response = requests.get(url, timeout=timeout, headers=headers)
 
-        issues = analyze_headers(headers)
+        hdrs = dict(response.headers)
+        issues = analyze_headers(hdrs)
 
         if not silent:
             print("\n[+] Headers:")
-            for k, v in headers.items():
+            for k, v in hdrs.items():
                 print(f"  {k}: {v}")
 
             if issues:
@@ -168,7 +168,7 @@ def check_headers(url, timeout, silent=False):
                 print("\n[+] No issues found")
 
         return {
-            "headers": headers,
+            "headers": hdrs,
             "issues": issues,
             "status_code": response.status_code
         }
@@ -185,14 +185,20 @@ def mcp_mode():
     for line in sys.stdin:
         try:
             req = json.loads(line.strip())
+
             req_id = req.get("id")
             action = req.get("action")
             target = req.get("target")
 
-            if action == "scan":
+            if not target:
+                result = {"error": "Missing target"}
+
+            elif action == "scan":
                 result = scan_target(target, "1-1000", silent=True)
+
             elif action == "headers":
                 result = check_headers(target, 5, silent=True)
+
             else:
                 result = {"error": "Unknown action"}
 
@@ -210,13 +216,14 @@ def mcp_mode():
 # MAIN
 # =========================
 def main():
-    if "--mcp" in sys.argv:
+    args = parse_args()
+
+    if args.mcp:
         mcp_mode()
         return
 
     print(generate_banner())
 
-    args = parse_args()
     silent = args.json
 
     final_data = {
@@ -233,25 +240,21 @@ def main():
     )
     final_data["port_scan"] = port_data
 
-    # Smart header detection
+    # Header Detection
     if not args.no_headers:
         open_ports = extract_open_ports(port_data)
 
+        common_http_ports = [80, 443, 8080, 8000, 8888, 3000]
         url = None
-        if 443 in open_ports:
-            url = f"https://{args.target}"
-        elif 80 in open_ports:
-            url = f"http://{args.target}"
+
+        for p in common_http_ports:
+            if p in open_ports:
+                scheme = "https" if p == 443 else "http"
+                url = f"{scheme}://{args.target}:{p}" if p not in [80, 443] else f"{scheme}://{args.target}"
+                break
 
         if url:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                future = executor.submit(
-                    check_headers,
-                    url,
-                    args.timeout,
-                    silent
-                )
-                final_data["headers"] = future.result()
+            final_data["headers"] = check_headers(url, args.timeout, silent)
         else:
             final_data["headers"] = {"info": "No HTTP service detected"}
 
