@@ -1,54 +1,69 @@
-## 🦊 FoxScan v2.1
+# 🦊 FoxScan v2.2
 
-### Automated Reconnaissance & Asset Discovery Tool
+### Automated Recon & Asset Discovery Tool
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1-blue.svg">
+  <img src="https://img.shields.io/badge/version-2.2-blue.svg">
   <img src="https://img.shields.io/badge/python-3.x-green.svg">
   <img src="https://img.shields.io/badge/license-MIT-yellow.svg">
   <img src="https://img.shields.io/badge/status-active-success.svg">
 </p>
 
 <p align="center">
-  <b>Fast • Lightweight • Practical Recon Tool for Security Engineers</b>
+  <b>Fast • Minimal • Practical Recon for Real-World Workflows</b>
 </p>
 
 ---
 
 ## 🧠 Overview
 
-**FoxScan** is a lightweight reconnaissance tool designed for the **initial phase of penetration testing and asset discovery**.
+**FoxScan** is a lightweight reconnaissance tool built for the **initial phase of penetration testing and asset discovery**.
 
-It focuses on delivering **clear, structured insights** rather than raw scan output.
-
-### 🔍 What it does
-
-* Port scanning via **Nmap**
-* Service & version detection
-* HTTP header analysis
-* Basic misconfiguration detection
-* JSON report generation for automation
+It focuses on **clarity over noise**, providing structured and meaningful output instead of raw scan dumps.
 
 ---
 
-## ✨ Features
+## 🔍 Capabilities
+
+* Port scanning via Nmap
+* Optional service/version detection (`--service`)
+* Smart HTTP/HTTPS detection
+* HTTP header analysis
+* Basic misconfiguration detection
+* JSON reporting for automation pipelines
+
+---
+
+## ✨ Key Features
 
 ### ⚡ Smart Port Scanning
 
-* Powered by Nmap (`-sV`)
-* Custom port ranges
-* Shows only open/active ports
-* Clean structured output (not cluttered CLI dump)
+* Powered by Nmap
+* Custom port ranges supported
+* Filters only **open ports**
+* Clean, readable output
+
+---
+
+### 🌐 Smart Protocol Detection
+
+* Automatically detects HTTP vs HTTPS
+* Uses port-based logic (80 → HTTP, 443 → HTTPS)
+* Avoids unnecessary or failed header scans
+
+---
 
 ### 🌐 Header Intelligence
 
-* Extracts HTTP headers
+* Extracts HTTP response headers
 * Identifies backend/server exposure
-* Detects missing security headers
+* Highlights missing security headers
 
-### ⚠️ Security Insights
+---
 
-Detects common issues like:
+### ⚠️ Security Observations
+
+Highlights common **misconfigurations**:
 
 * Missing `X-Frame-Options`
 * Missing `X-Content-Type-Options`
@@ -56,16 +71,46 @@ Detects common issues like:
 * Missing `Content-Security-Policy`
 * Server version disclosure
 
+> ⚠️ Note: These are **observations**, not confirmed vulnerabilities.
+
+---
+
 ### 📊 JSON Reporting
 
-* Machine-readable output
-* Pipeline-friendly
-* Easy integration with other tools
+* Machine-readable structured output
+* Ideal for CI/CD pipelines
+* Clean automation integration
+
+---
+
+### 🤖 MCP / Automation Mode
+
+FoxScan includes a minimal JSON-based interface for automation and tool integration.
+
+Start MCP mode:
+
+```bash
+python foxscan.py --mcp
+```
+
+Example request:
+
+```json
+{"id": 1, "action": "scan", "target": "example.com"}
+```
+
+Example response:
+
+```json
+{"id": 1, "result": {...}}
+```
+
+---
 
 ### 🧵 Concurrent Execution
 
 * Multi-threaded header scanning
-* Faster recon without heavy resource usage
+* Faster recon with minimal overhead
 
 ---
 
@@ -87,7 +132,7 @@ python foxscan.py example.com -p 1-1000 -o report.json
 
 ### 1️⃣ Install Nmap
 
-**Ubuntu / Debian**
+**Debian / Ubuntu**
 
 ```bash
 sudo apt install nmap
@@ -100,7 +145,7 @@ sudo dnf install nmap
 ```
 
 **Windows**
-Download: [https://nmap.org/download.html](https://nmap.org/download.html)
+Download from: [https://nmap.org/download.html](https://nmap.org/download.html)
 
 ---
 
@@ -129,11 +174,23 @@ pip install -r requirements.txt
 python foxscan.py example.com
 ```
 
-### 🔹 Full Port Range
+---
+
+### 🔹 Full Port Scan
 
 ```bash
 python foxscan.py example.com -p 1-65535
 ```
+
+---
+
+### 🔹 Enable Service Detection
+
+```bash
+python foxscan.py example.com --service
+```
+
+---
 
 ### 🔹 Skip Header Analysis
 
@@ -141,11 +198,15 @@ python foxscan.py example.com -p 1-65535
 python foxscan.py example.com --no-headers
 ```
 
-### 🔹 JSON Output (Automation Mode)
+---
+
+### 🔹 JSON Output
 
 ```bash
 python foxscan.py example.com --json
 ```
+
+---
 
 ### 🔹 Save Report
 
@@ -155,63 +216,29 @@ python foxscan.py example.com -o report.json
 
 ---
 
-## 📊 Example Output
+## 📊 Sample Output
 
 ```
 [+] Starting Port Scan on: example.com
 
-example.com:80 -> open (Apache httpd)
+[+] Host: example.com (up)
+  └─ TCP 80: Apache httpd 2.4.49
 
-[*] Checking Headers: http://example.com
+[~] HTTP Recon: http://example.com
 
-Server: Apache/2.4.49
-Content-Type: text/html
+[+] Headers:
+  Server: Apache/2.4.49
+  Content-Type: text/html
 
-[!] Potential Issues:
- - Server disclosed: Apache/2.4.49
- - Missing X-Frame-Options
+[!] Security Observations:
+  - Server disclosed: Apache/2.4.49
+  - Missing X-Frame-Options
+  - Missing X-Content-Type-Options
 ```
 
 ---
 
-## 📁 JSON Output (Sample)
-
-```json
-{
-  "target": "example.com",
-  "version": "2.1",
-  "port_scan": {
-    "example.com": {
-      "state": "up",
-      "protocols": {
-        "tcp": {
-          "80": {
-            "state": "open",
-            "name": "http",
-            "product": "Apache",
-            "version": "2.4.49"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
----
-
-## 🧪 Methodology
-
-FoxScan follows a **real-world recon workflow**:
-
-1. **Discovery** → Identify open ports
-2. **Enumeration** → Detect services & versions
-3. **Analysis** → Extract headers & configs
-4. **Insight** → Highlight potential weaknesses
-
----
-
-## 🏗 Project Structure
+## 📁 Project Structure
 
 ```
 FoxScan/
@@ -225,36 +252,40 @@ FoxScan/
 
 ---
 
-## 🔮 Roadmap
+## 🧪 Methodology
 
-* 🔍 CVE lookup (NVD API integration)
-* 🌐 Subdomain enumeration
-* 🕷 Web crawler module
-* 📡 OS detection (Nmap integration)
-* 📊 Web UI dashboard
-* ⚡ Async scanning engine
-* 🔌 Plugin system (major upgrade)
+FoxScan follows a practical recon workflow:
+
+1. **Discovery** → Identify open ports
+2. **Enumeration** → Detect services (optional)
+3. **Analysis** → Extract HTTP headers
+4. **Insight** → Highlight misconfigurations
 
 ---
 
-## 🤝 Contributing
+## 🔮 Roadmap
 
-1. Fork the repo
-2. Create a feature branch
-3. Commit changes
-4. Open a Pull Request
+* CVE lookup (NVD integration)
+* Subdomain enumeration
+* Web crawling module
+* OS detection (Nmap integration)
+* Async high-speed scanning engine
+* Plugin system
+* Web dashboard UI
 
 ---
 
 ## ⚠️ Disclaimer
 
-This tool is intended for:
+This tool is intended strictly for:
 
-* ✅ Educational use
-* ✅ Authorized security testing
+✅ Educational purposes
+✅ Ethical hacking
+✅ Authorized penetration testing
 
-Unauthorized use is illegal.
-The authors are not responsible for misuse.
+❌ Unauthorized use is illegal
+
+The authors are **not responsible for misuse**.
 
 ---
 
@@ -266,16 +297,16 @@ MIT License © 2026 Fox Hackerz
 
 ## 🦊 About
 
-**Fox Hackerz** builds tools focused on:
+Fox Hackerz builds tools focused on:
 
 * Cybersecurity
 * Automation
-* Developer tooling
+* Developer systems
 
 🔗 [https://github.com/foxhackerzdevs](https://github.com/foxhackerzdevs)
 
 ---
 
 <p align="center">
-  <b>🦊 Build simple tools that actually get used.</b>
+  <b>🦊 Build. Break. Secure.</b>
 </p>
